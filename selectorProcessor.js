@@ -1,37 +1,29 @@
-const process = require('process');
-
 function processSelector(selector) {
-    const parts = selector.split('.shadowRoot.querySelector');
-    
-    let initialSelector = parts[0];
-    let finalSelector = parts[1];
-    
-    initialSelector = initialSelector.replace(/document.querySelector\(|["()]/g, '').trim();
-    finalSelector = finalSelector.replace(/["()]/g, '').trim();
-
-    const initialElements = initialSelector.split(' > ');
-    const finalElements = finalSelector.split(' > ');
-
-    const processedInitialElements = initialElements.filter(element => {
-        return !element.startsWith('#') && !element.includes('div');
-    });
-
-    const processedFinalElements = finalElements.filter(element => {
-        return !element.includes('div');
-    });
-
-    const result = [...processedInitialElements, ...processedFinalElements];
-
-    return result;
-}
-
-const selector = process.argv[2];
-
-if (!selector) {
-    console.error('Proszę podać selektor jako argument.');
+    // Usunięcie podwójnych cudzysłowów z początku i końca selektora, jeśli są obecne
+    selector = selector.replace(/^"|"$/g, '');
+  
+    // Usunięcie 'document.querySelector(' na początku i zamknięcia ')'
+    if (selector.startsWith('document.querySelector(')) {
+      selector = selector.slice(21, -1);
+    }
+  
+    // Rozdzielanie selektora na części według `.shadowRoot.querySelector`
+    let parts = selector.split(/\.shadowRoot\.querySelector\(|\)/).filter(Boolean);
+  
+    // Przekształcenie każdej części na ostatnią część po ">"
+    let processedParts = parts.map(part => part.split('>').pop().trim());
+  
+    return processedParts;
+  }
+  
+  // Pobieranie selektora z argumentów wiersza poleceń
+  const args = process.argv.slice(2);
+  if (args.length !== 1) {
+    console.error('Użycie: node selectorProcessor.js "<selector>"');
     process.exit(1);
-}
-
-const result = processSelector(selector);
-
-console.log(result);
+  }
+  
+  const selector = args[0];
+  const result = processSelector(selector);
+  console.log(result);
+  
