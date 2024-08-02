@@ -1,0 +1,1 @@
+node selectorProcessor.js 'document.querySelector("#main-region > div > subwoofer-prod").shadowRoot.querySelector("div > div > tabs-view").shadowRoot.querySelector("div")'
